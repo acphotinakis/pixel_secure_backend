@@ -1,0 +1,128 @@
+CREATE TABLE users(
+    username VARCHAR(255) PRIMARY KEY,
+    firstname VARCHAR(255) NOT NULL,
+    lastname VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE platform(
+    platformname VARCHAR(255) PRIMARY KEY
+);
+
+CREATE TABLE genre(
+    GenreName VARCHAR(255) PRIMARY KEY
+);
+
+CREATE DOMAIN esrb AS CHAR(5) CHECK (VALUE IN ('E','E10', 'T', 'M', 'A', 'RP','RP-17'));
+
+CREATE TABLE videogame(
+    vg_id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    esrb_rating esrb NOT NULL
+);
+
+CREATE TABLE contributor(
+    contributorID SERIAL PRIMARY KEY,
+    contributorName VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE useraccessdatetimes(
+    AccessDateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    username VARCHAR(255) NOT NULL,
+    FOREIGN KEY (username) REFERENCES users(username),
+    PRIMARY KEY (username, AccessDateTime)   
+);
+
+CREATE TABLE userownsvideogame(
+    PRIMARY KEY (username, vg_id),
+    username VARCHAR(255) NOT NULL,
+    vg_id INT NOT NULL,
+    FOREIGN KEY (username) REFERENCES users(username),
+    FOREIGN KEY (vg_id) REFERENCES videogame(vg_id)
+);
+
+CREATE TABLE userfollowsuser(
+    username VARCHAR(255) NOT NULL,
+    followedusername VARCHAR(255) NOT NULL,
+    FOREIGN KEY (username) REFERENCES users(username),
+    FOREIGN KEY (followedusername) REFERENCES users(username),
+    PRIMARY KEY (username, followedusername)
+);
+
+CREATE TABLE videogamepublishedbycontributor(
+    vg_id INT NOT NULL,
+    contributorid INT NOT NULL,
+    FOREIGN KEY (vg_id) REFERENCES videogame(vg_id),
+    FOREIGN KEY (contributorid) REFERENCES contributor(contributorid),
+    PRIMARY KEY (vg_id, contributorid)
+);
+
+CREATE TABLE videogameisgenre(
+    vg_id INT NOT NULL,
+    genrename VARCHAR(255) NOT NULL,
+    FOREIGN KEY (vg_id) REFERENCES videogame(vg_id),
+    FOREIGN KEY (genrename) REFERENCES genre(genrename),
+    PRIMARY KEY (vg_id, genrename)
+);
+
+CREATE TABLE collections(
+    username VARCHAR(255) NOT NULL,
+    collections_id SERIAL PRIMARY KEY,
+    collectionname VARCHAR(255) NOT NULL,
+    description VARCHAR(255),
+    FOREIGN KEY (username) REFERENCES users(username)
+);
+
+CREATE TABLE userplaysvideogame(
+    username VARCHAR(255) NOT NULL,
+    vg_id INT NOT NULL,
+    FOREIGN KEY (username) REFERENCES users(username),
+    FOREIGN KEY (vg_id) REFERENCES videogame(vg_id),
+    datetimeopened TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (username, vg_id, datetimeopened)
+);
+
+CREATE TABLE userratesvideogame(
+    username VARCHAR(255) NOT NULL,
+    vg_id INT NOT NULL,
+    FOREIGN KEY (username) REFERENCES users(username),
+    FOREIGN KEY (vg_id) REFERENCES videogame(vg_id),
+    rating INT NOT NULL,
+    PRIMARY KEY (username, vg_id)
+);
+
+CREATE TABLE userhasplatform(
+    username VARCHAR(255) NOT NULL,
+    platformname VARCHAR(255) NOT NULL,
+    FOREIGN KEY (username) REFERENCES users(username),
+    FOREIGN KEY (platformname) REFERENCES platform(platformname),
+    PRIMARY KEY (username, platformname)
+);
+
+CREATE TABLE videogamesdevelopedbycontributor(
+    vg_id INT NOT NULL,
+    contributorid INT NOT NULL,
+    FOREIGN KEY (vg_id) REFERENCES videogame(vg_id),
+    FOREIGN KEY (contributorid) REFERENCES contributor(contributorid),
+    PRIMARY KEY (vg_id, contributorid)
+);
+
+CREATE TABLE videogamesreleasedonplatform(
+    vg_id INT NOT NULL,
+    platformname VARCHAR(255) NOT NULL,
+    FOREIGN KEY (vg_id) REFERENCES videogame(vg_id),
+    FOREIGN KEY (platformname) REFERENCES platform(platformname),
+    price NUMERIC(10,2) NOT NULL,
+    releasedate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (vg_id, platformname)
+);
+
+CREATE TABLE videogamestoredincollection(
+    vg_id INT NOT NULL,
+    collections_id INT NOT NULL,
+    FOREIGN KEY (vg_id) REFERENCES videogame(vg_id),
+    FOREIGN KEY (collections_id) REFERENCES collections(collections_id),
+    PRIMARY KEY (vg_id, collections_id)
+);
