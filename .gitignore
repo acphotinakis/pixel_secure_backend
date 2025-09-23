@@ -1,1 +1,11 @@
 target
+
+.project_venv
+.env
+connectionString.pem
+
+database/secure_output_data_power/*
+!database/secure_output_data_power/.gitkeep3
+
+video-game-cli/target
+file_rety_data_output.txt
