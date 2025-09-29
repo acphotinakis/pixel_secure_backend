@@ -25,11 +25,15 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
     @Value("${spring.data.mongodb.uri}")
     private String connectionString;
 
-    @Value("${spring.data.mongodb.database}")
     private String databaseName;
 
     @Override
     protected String getDatabaseName() {
+        // Extract database directly from URI
+        if (databaseName == null) {
+            ConnectionString connString = new ConnectionString(connectionString);
+            databaseName = connString.getDatabase();
+        }
         return databaseName;
     }
 
